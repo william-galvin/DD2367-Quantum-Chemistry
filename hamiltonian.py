@@ -31,40 +31,20 @@ def hamiltonian(xyz_path: str, basis: str = "sto-3g") -> np.ndarray:
     # openfermionpyscf.run_pyscf(mol)
     # one_e, two_e = mol.get_integrals()
 
-    hf = mol_pyscf.RHF()
-    hf.kernel()
-    for j in range(10):
-        mo = hf.stability()[0]
-        if np.allclose(mo, hf.mo_coeff):
-            break
-        dm = hf.make_rdm1(mo, hf.mo_occ)
-        hf = hf.run(dm)
-
-    h1e = mol_pyscf.intor("int1e_kin") + mol_pyscf.intor("int1e_nuc")
-    h2e = mol_pyscf.intor("int2e")
-
-    scf_c = hf.mo_coeff
-    nuclear_repulsion = mol_pyscf.energy_nuc()
-    constant = nuclear_repulsion
-
-    one_e = scf_c.T @ h1e @ scf_c
-    for i in range(4):
-        h2e = np.tensordot(h2e, scf_c, axes=1).transpose(3, 0, 1, 2)
-    two_e = h2e.transpose(0, 2, 3, 1)
+    one_e = mol_pyscf.intor("int1e_kin_spinor") + mol_pyscf.intor("int1e_nuc_spinor")
+    two_e = mol_pyscf.intor("int2e_spinor")
 
     N = len(mol_pyscf.spinor_labels())
 
     H = np.zeros((2 ** N, 2 ** N), dtype=complex)
 
     for p, q in itertools.product(range(N), range(N)):
-        if p % 2 == q % 2:
-            H += one_e[p // 2, q // 2] * creation(p, N) @ annihilation(q, N)
+        H += one_e[p, q] * creation(p, N) @ annihilation(q, N)
 
     for p, q, r, s in itertools.product(range(N), range(N), range(N), range(N)):
-        if p % 2 == r % 2 and q % 2 == s % 2:
-            H += 0.5 * two_e[p // 2, q // 2, r // 2, s // 2] * creation(p, N) @ creation(q, N) @ annihilation(r, N) @ annihilation(s, N)
+        H -= 0.5 * two_e[p, q, r, s] * creation(p, N) @ creation(q, N) @ annihilation(r, N) @ annihilation(s, N)
 
-    return H  + constant
+    return H
 
 
 def pyscf_to_openfermion(mol: pyscf.gto.mole.Mole) -> openfermion.chem.MolecularData:
@@ -129,7 +109,7 @@ def annihilation(i: int, N: int) -> np.ndarray:
     [ 0.+0.j  0.+0.j -0.+0.j -0.+0.j]]
     ```
     """
-    A =np.array([[1]])
+    A = np.array([[1]])
     for n in range(N):
         if n < i:
             t = Z
@@ -141,7 +121,18 @@ def annihilation(i: int, N: int) -> np.ndarray:
     return A
 
 
-def expectation(H: np.ndarray, psi: np.array) -> float:
+def target_energy(path: str, basis: str = "sto-3g") -> float:
+    """
+    Uses pyscf to calculate the target electronic energy.
+    When we minimize theta, the expectation of H w.r.t. psi
+    should be close to this
+    """
+    mol_pyscf = pyscf.gto.M(atom=path, basis=basis)
+    hartree, coulomb = mol_pyscf.energy_elec()
+    return (hartree - coulomb).real
+
+
+def expectation(H: np.ndarray, psi: np.ndarray) -> float:
     """
     Calculates <psi*|H|psi>/<psi*|psi> = the expectation
     of the Hamiltonian with respect to the wave function
@@ -150,7 +141,7 @@ def expectation(H: np.ndarray, psi: np.array) -> float:
 
 
 if __name__ == "__main__":
-    H = hamiltonian("data/h2.xyz")
+    H = hamiltonian("data/h4.xyz")
     print("H shape:", H.shape)
-    np.save("h2_H.npy", H)
+    np.save("h4_H.npy", H)
 
