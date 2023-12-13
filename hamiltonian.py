@@ -4,8 +4,6 @@ import itertools
 import openfermion
 import openfermionpyscf
 
-from tqdm import tqdm
-
 
 X = np.array([[0,  1 ], [1,  0]], dtype=complex)
 Y = np.array([[0, -1j], [1j, 0]], dtype=complex)
@@ -58,11 +56,11 @@ def hamiltonian(xyz_path: str, basis: str = "sto-3g") -> np.ndarray:
 
     H = np.zeros((2 ** N, 2 ** N), dtype=complex)
 
-    for p, q in tqdm(itertools.product(range(N), range(N))):
+    for p, q in itertools.product(range(N), range(N)):
         if p % 2 == q % 2:
             H += one_e[p // 2, q // 2] * creation(p, N) @ annihilation(q, N)
 
-    for p, q, r, s in tqdm(itertools.product(range(N), range(N), range(N), range(N))):
+    for p, q, r, s in itertools.product(range(N), range(N), range(N), range(N)):
         if p % 2 == r % 2 and q % 2 == s % 2:
             H += 0.5 * two_e[p // 2, q // 2, r // 2, s // 2] * creation(p, N) @ creation(q, N) @ annihilation(r, N) @ annihilation(s, N)
 
@@ -153,6 +151,6 @@ def expectation(H: np.ndarray, psi: np.array) -> float:
 
 if __name__ == "__main__":
     H = hamiltonian("data/h2.xyz")
-    print(H.shape)
-    np.save("h2_ham.npy", H)
+    print("H shape:", H.shape)
+    np.save("h2_H.npy", H)
 
