@@ -179,7 +179,6 @@ def givens_double(src: List[int], dst: List[int], theta: float, states: Dict[str
 if __name__ == '__main__':
     electrons, qubits = 2, 4
     thetas = [0, 0, .2]
-    electrons, qubits = 2, 4
 
     G = givens(electrons, qubits, thetas)
     psi_valid = hf_ground(electrons, qubits) @ G
