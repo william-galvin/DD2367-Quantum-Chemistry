@@ -1,6 +1,8 @@
 import numpy as np
+import pyscf
 
 from typing import Dict
+from typing import Tuple
 
 
 def random_xyz(mol: Dict[str, int], path: str):
@@ -24,9 +26,11 @@ def random_xyz(mol: Dict[str, int], path: str):
                 f.write("\n")
 
 
-
-
-    
-
-
+def get_electrons_qubits(path: str) -> Tuple[int, int]:
+    """
+    Returns the number of electrons and qubits (spin orbitals)
+    from an atom specified in a .xyz file
+    """
+    mol = pyscf.gto.M(atom=path)
+    return sum(mol.nelec), len(mol.spinor_labels())
 
