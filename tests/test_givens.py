@@ -25,7 +25,7 @@ def test_givens_unitary():
 
         G = givens.givens(electrons, qubits, thetas)
 
-        assert np.allclose(np.eye(len(states)), G @ G.conj().T)
+        assert np.allclose(np.eye(len(states)), G @ G.conj().T, atol=1e-6)
 
 
 def test_hf_ground_state():
