@@ -3,6 +3,7 @@ import numpy as np
 from typing import Dict
 from typing import Tuple
 from typing import List
+from src.hamiltonian import expectation
 
 def givens(electrons: int, qubits: int, thetas: List[float]) -> np.ndarray:
     """
@@ -18,7 +19,7 @@ def givens(electrons: int, qubits: int, thetas: List[float]) -> np.ndarray:
     psi_valid = hf_ground(electrons, qubits) @ G
 
     H = hamiltonian.hamiltonian(...)
-    psi = full_wavefunction(psi_valid, qubits)
+    psi = full_wavefunction(psi_valid, electrons, qubits)
 
     E = hamiltonian.expectation(H, psi)
 
@@ -54,7 +55,7 @@ def hf_ground(electrons: int, qubits: int) -> np.array:
     return hf_ground
 
 
-def full_wavefunction(valid_wavefunction: np.array, qubits: int) -> np.array:
+def full_wavefunction(valid_wavefunction: np.array, electrons: int, qubits: int) -> np.array:
     """
     Converts a wave function containing only the valid states to the full wave function
     """
@@ -177,11 +178,16 @@ def givens_double(src: List[int], dst: List[int], theta: float, states: Dict[str
 
 
 if __name__ == '__main__':
-    electrons, qubits = 2, 4
-    thetas = [0, 0, .2]
+    electrons, qubits = 4, 8
+    thetas = [
+        0.30297112605241233, 0.2875767533861092, 0.2707004080694106, 0.2541355127647222, 0.352600931677438, 0.18175038248685257, 0.3755487291823918, 0.2354635035233352, 0.22136834283881382, 0.04955184336519107, 0.051722157816351186, 0.22072538960948454, 0.08427697679832118, 0.09983028127620523, 0.23993427532233022, -0.0665121032420723, 0.044451204940367736, 0.07297589006800854, -0.08972528890326587, 0.24084690799705308, 0.026826391993975563, 0.09131385289943736, 0.324483245018979, 0.07497757384637271, 0.047183387727938085, 0.16902006057626526
+    ]
 
     G = givens(electrons, qubits, thetas)
     psi_valid = hf_ground(electrons, qubits) @ G
-    psi = full_wavefunction(psi_valid, qubits)
+    psi = full_wavefunction(psi_valid, electrons, qubits)
 
-    print(psi)
+    H = np.load("h4_H.npy")
+    print(expectation(H, psi))
+
+    # print(psi)

@@ -117,13 +117,13 @@ def expectation(H: np.ndarray, psi: np.ndarray) -> float:
     Calculates <psi*|H|psi>/<psi*|psi> = the expectation
     of the Hamiltonian with respect to the wave function
     """
-    return (psi.conj() @ H @ psi) / (psi.conj() @ psi)
+    return ((psi.conj() @ H @ psi) / (psi.conj() @ psi)).real
 
 
 if __name__ == "__main__":
-    file = "data/h2.xyz"
+    file = "data/h4.xyz"
     H = hamiltonian(file)
     print("H shape:", H.shape)
     print("target energy:", target_energy(file))
-    np.save("h2_H.npy", H)
+    np.save("h4_H.npy", H)
 
