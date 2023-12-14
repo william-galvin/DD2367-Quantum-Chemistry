@@ -1,8 +1,6 @@
 import numpy as np
 import pyscf
 import itertools
-import openfermion
-import openfermionpyscf
 
 
 X = np.array([[0,  1 ], [1,  0]], dtype=complex)
@@ -27,38 +25,20 @@ def hamiltonian(xyz_path: str, basis: str = "sto-3g") -> np.ndarray:
     """
     mol_pyscf = pyscf.gto.M(atom=xyz_path, basis=basis)
 
-    # mol = pyscf_to_openfermion(mol_pyscf)
-    # openfermionpyscf.run_pyscf(mol)
-    # one_e, two_e = mol.get_integrals()
-
-    one_e = mol_pyscf.intor("int1e_kin_spinor") + mol_pyscf.intor("int1e_nuc_spinor")
-    two_e = mol_pyscf.intor("int2e_spinor")
+    h1 = mol_pyscf.intor("int1e_kin_spinor") + mol_pyscf.intor("int1e_nuc_spinor")
+    h2 = mol_pyscf.intor("int2e_spinor")
 
     N = len(mol_pyscf.spinor_labels())
 
     H = np.zeros((2 ** N, 2 ** N), dtype=complex)
 
     for p, q in itertools.product(range(N), range(N)):
-        H += one_e[p, q] * creation(p, N) @ annihilation(q, N)
+        H += h1[p, q] * creation(p, N) @ annihilation(q, N)
 
     for p, q, r, s in itertools.product(range(N), range(N), range(N), range(N)):
-        H -= 0.5 * two_e[p, q, r, s] * creation(p, N) @ creation(q, N) @ annihilation(r, N) @ annihilation(s, N)
+        H -= 0.5 * h2[p, q, r, s] * creation(p, N) @ creation(q, N) @ annihilation(r, N) @ annihilation(s, N)
 
     return H
-
-
-def pyscf_to_openfermion(mol: pyscf.gto.mole.Mole) -> openfermion.chem.MolecularData:
-    geometry = []
-    for line in mol.tostring().split("\n"):
-        sym, x, y, z = line.split()
-        x, y, z = float(x), float(y), float(z)
-        geometry.append((sym, (x, y, z)))
-
-    return openfermion.chem.MolecularData(
-        geometry=geometry,
-        basis=mol.basis,
-        multiplicity=mol.multiplicity
-    )
 
 
 def creation(i: int, N: int) -> np.ndarray:
@@ -123,7 +103,7 @@ def annihilation(i: int, N: int) -> np.ndarray:
 
 def target_energy(path: str, basis: str = "sto-3g") -> float:
     """
-    Uses pyscf to calculate the target electronic energy.
+    Uses pyscf to calculate the target electronic (e1) energy.
     When we minimize theta, the expectation of H w.r.t. psi
     should be close to this
     """
@@ -141,7 +121,9 @@ def expectation(H: np.ndarray, psi: np.ndarray) -> float:
 
 
 if __name__ == "__main__":
-    H = hamiltonian("data/h4.xyz")
+    file = "data/h2.xyz"
+    H = hamiltonian(file)
     print("H shape:", H.shape)
-    np.save("h4_H.npy", H)
+    print("target energy:", target_energy(file))
+    np.save("h2_H.npy", H)
 
