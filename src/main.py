@@ -96,7 +96,7 @@ def get_args() -> argparse.Namespace:
 
 
 if __name__ == "__main__":
-    linebreak = 80 * "="
+    linebreak = "\n" + 100 * "=" + "\n"
 
     args = get_args()
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
             raise RuntimeError("Molecule not valid for PySCF")
         
         H = hamiltonian(file)
-        print(f"Hamiltonian created for {electrons} electrons and {qubits} spin orbitals")
+        print(f"\nHamiltonian created for {electrons} electrons and {qubits} spin orbitals")
         print(linebreak)
 
     singles, doubles = excitations(electrons, qubits)
@@ -148,5 +148,5 @@ if __name__ == "__main__":
         prev = E
 
     print(linebreak)
-    print(f"Final E converged to {E: 5f} in {i} steps")
+    print(f"Final E converged to {E: 5f} in {i} steps\n")
     
