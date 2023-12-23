@@ -15,9 +15,6 @@ def random_xyz(mol: Dict[str, int], path: str):
     - path: place to write file
     """
     with open(path, "w+") as f:
-        f.write(str(sum(mol.values())))
-        f.write("\n\n")
-
         for sym, count in mol.items():
             for _ in range(count):
                 f.write(sym)

@@ -101,29 +101,10 @@ def annihilation(i: int, N: int) -> np.ndarray:
     return A
 
 
-def target_energy(path: str, basis: str = "sto-3g") -> float:
-    """
-    Uses pyscf to calculate the target electronic (e1) energy.
-    When we minimize theta, the expectation of H w.r.t. psi
-    should be close to this
-    """
-    mol_pyscf = pyscf.gto.M(atom=path, basis=basis)
-    hartree, coulomb = mol_pyscf.energy_elec()
-    return (hartree - coulomb).real
-
-
 def expectation(H: np.ndarray, psi: np.ndarray) -> float:
     """
     Calculates <psi*|H|psi>/<psi*|psi> = the expectation
     of the Hamiltonian with respect to the wave function
     """
     return ((psi.conj() @ H @ psi) / (psi.conj() @ psi)).real
-
-
-if __name__ == "__main__":
-    file = "data/h4.xyz"
-    H = hamiltonian(file)
-    print("H shape:", H.shape)
-    print("target energy:", target_energy(file))
-    np.save("h4_H.npy", H)
 
