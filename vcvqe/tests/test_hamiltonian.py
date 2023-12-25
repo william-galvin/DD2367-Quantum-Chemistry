@@ -1,6 +1,10 @@
 import numpy as np
+import os
 
 from src import hamiltonian
+
+root = "." if os.path.isdir("data") else ".."
+print(root)
 
 def test_creation_annihilation_shape():
     for n in range(8):
@@ -22,6 +26,6 @@ def test_creation_annihilation_anti_symmetry():
 
 
 def test_hamiltonian_hermitian():
-    file = "data/h2.xyz"
+    file = f"{root}/data/h2.xyz"
     H = hamiltonian.hamiltonian(file)
     assert np.allclose(H, H.conj().T)

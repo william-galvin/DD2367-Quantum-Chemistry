@@ -1,0 +1,2 @@
+pennylane>=0.32
+matplotlib

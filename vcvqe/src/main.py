@@ -11,14 +11,14 @@ import numpy as np
 from jax import numpy as jnp
 from jax import value_and_grad
 
-from givens import givens
-from givens import hf_ground
-from givens import full_wavefunction
-from givens import excitations
-from hamiltonian import expectation
-from hamiltonian import hamiltonian
-from utils import get_electrons_qubits
-from utils import random_xyz
+from src.givens import givens
+from src.givens import hf_ground
+from src.givens import full_wavefunction
+from src.givens import excitations
+from src.hamiltonian import expectation
+from src.hamiltonian import hamiltonian
+from src.utils import get_electrons_qubits
+from src.utils import random_xyz
 
 
 def energy(H: np.ndarray, electrons: int, qubits: int, thetas: np.ndarray) -> float:
@@ -47,9 +47,14 @@ def get_args() -> argparse.Namespace:
 
     parser.add_argument(
         "--random",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
         default=False,
         help="Specify whether to use a random molecule or supply your own. If --random is set, --num-H must be too. If not, --file must be set"
+    )
+    parser.add_argument(
+        "--no-random",
+        dest="random",
+        action="store_false"
     )
 
     parser.add_argument(
@@ -92,13 +97,16 @@ def get_args() -> argparse.Namespace:
         help="Optimization step size aka learning rate"
     )
 
-    return parser.parse_args()
+    return parser.parse_args(), parser
 
 
-if __name__ == "__main__":
+def main():
     linebreak = "\n" + 100 * "=" + "\n"
 
-    args = get_args()
+    args, parser = get_args()
+    if not args.random and args.file is None:
+        parser.print_help()
+        exit(-1)
 
     with tempfile.NamedTemporaryFile() as f:
         if args.random:
@@ -116,11 +124,11 @@ if __name__ == "__main__":
 
         try:
             electrons, qubits = get_electrons_qubits(file)
-        except RuntimeError:
-            raise RuntimeError("Molecule not valid for PySCF")
+        except RuntimeError as e:
+            raise RuntimeError(f"Molecule not valid for PySCF:\n {str(e)}")
         
+        print(f"\nCreating Hamiltonian for {electrons} electrons and {qubits} spin orbitals")
         H = hamiltonian(file)
-        print(f"\nHamiltonian created for {electrons} electrons and {qubits} spin orbitals")
         print(linebreak)
 
     singles, doubles = excitations(electrons, qubits)
@@ -142,11 +150,14 @@ if __name__ == "__main__":
 
         print(f"\tstep: {i: 2}\t\tE: {E: .3f}\t\tDifference: {E - prev: .3f}")
         
-        if abs(E - prev) < args.threshold and i >= args.min_iter:
+        if abs(E - prev) < args.threshold and i >= args.min_iter - 1:
             break
 
         prev = E
 
     print(linebreak)
-    print(f"Final E converged to {E: 5f} in {i} steps\n")
-    
+    print(f"Final E converged to {E: 5f} in {i + 1} steps\n")
+
+
+if __name__ == "__main__":
+    main()

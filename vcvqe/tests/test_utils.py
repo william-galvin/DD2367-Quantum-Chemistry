@@ -1,6 +1,9 @@
 import tempfile
+import os
 
 from src import utils
+
+root = "." if os.path.isdir("data") else ".."
 
 def test_random_xyz():
     atoms = {"H": 12, "O": 89, "Cl": 4}
@@ -12,11 +15,11 @@ def test_random_xyz():
 
 
 def test_get_electrons_qubits():
-    file = "data/h2.xyz"
+    file = f"{root}/data/h2.xyz"
     assert utils.get_electrons_qubits(file) == (2, 4)
 
-    file = "data/h4.xyz"
+    file = f"{root}/data/h4.xyz"
     assert utils.get_electrons_qubits(file) == (4, 8)
 
-    file = "data/h2o.xyz"
+    file = f"{root}/data/h2o.xyz"
     assert utils.get_electrons_qubits(file) == (10, 14)
