@@ -114,7 +114,7 @@ def main():
                 raise ValueError("Must specify --num-H if --random is used")
             
             random_xyz({"H": args.num_H}, f.name)
-            print("Random H4 molecule generated:\n")
+            print(f"Random H{args.num_H} molecule generated:\n")
             print(open(f.name).read())
             print(linebreak)
 
