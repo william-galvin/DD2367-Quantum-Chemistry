@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-from src import hamiltonian
+from vcvqe import hamiltonian
 
 root = "." if os.path.isdir("data") else ".."
 print(root)

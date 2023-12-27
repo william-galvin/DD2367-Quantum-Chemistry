@@ -1,7 +1,7 @@
 import tempfile
 import os
 
-from src import utils
+from vcvqe import utils
 
 root = "." if os.path.isdir("data") else ".."
 

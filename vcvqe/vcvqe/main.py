@@ -11,14 +11,14 @@ import numpy as np
 from jax import numpy as jnp
 from jax import value_and_grad
 
-from src.givens import givens
-from src.givens import hf_ground
-from src.givens import full_wavefunction
-from src.givens import excitations
-from src.hamiltonian import expectation
-from src.hamiltonian import hamiltonian
-from src.utils import get_electrons_qubits
-from src.utils import random_xyz
+from vcvqe.givens import givens
+from vcvqe.givens import hf_ground
+from vcvqe.givens import full_wavefunction
+from vcvqe.givens import excitations
+from vcvqe.hamiltonian import expectation
+from vcvqe.hamiltonian import hamiltonian
+from vcvqe.utils import get_electrons_qubits
+from vcvqe.utils import random_xyz
 
 
 def energy(H: np.ndarray, electrons: int, qubits: int, thetas: np.ndarray) -> float:

@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-from src import givens
+from vcvqe import givens
 
 def test_givens_shape():
     for i in range(1, 5):
