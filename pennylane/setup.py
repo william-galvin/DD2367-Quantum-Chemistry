@@ -3,9 +3,9 @@ from setuptools import setup
 setup(
     name="vqe-pennylane",
     version="0.1.0",
-    packages=["src"],
+    packages=["vqe_pennylane"],
     entry_points={
         "console_scripts":
-        ["vqe-pennylane = src.main:main"]
+        ["vqe-pennylane = vqe_pennylane.main:main"]
     },
 )

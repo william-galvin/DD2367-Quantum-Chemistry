@@ -3,9 +3,9 @@ from setuptools import setup
 setup(
     name="vcvqe",
     version="0.1.0",
-    packages=["src"],
+    packages=["vcvqe"],
     entry_points={
         "console_scripts":
-        ["vcvqe = src.main:main"]
+        ["vcvqe = vcvqe.main:main"]
     },
 )
