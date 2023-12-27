@@ -13,8 +13,12 @@ def main():
 
     parser.add_argument(
         "--file",
-        required=True,
-        help="Path to .xyz file for input molecule."
+        help="Path to .xyz file for input molecule. Use this xor --mol"
+    )
+
+    parser.add_argument(
+        "--mol",
+        help="Name of molecule in pennylane dataset. Use this xor --file"
     )
 
     parser.add_argument(
@@ -38,11 +42,19 @@ def main():
     
     args = parser.parse_args()
 
-    symbols, geometry = qml.qchem.read_structure(args.file)
+    if args.file is not None:
+        symbols, geometry = qml.qchem.read_structure(args.file)
 
-    mol = qml.qchem.Molecule(symbols, geometry)
-    electrons = mol.n_electrons
-    H, qubits = qml.qchem.molecular_hamiltonian(symbols, geometry)
+        mol = qml.qchem.Molecule(symbols, geometry)
+        electrons = mol.n_electrons
+        H, qubits = qml.qchem.molecular_hamiltonian(symbols, geometry)
+        hf = qml.qchem.hf_state(electrons, qubits)
+    else:
+        dataset = qml.data.load("qchem", molname=args.mol)[0]
+        H = dataset.hamiltonian 
+        qubits = len(H.wires)
+        hf = dataset.hf_state
+        electrons = str(hf).count("1")
     
     if qubits > 8:
         print(f"{qubits} qubits: This may take awhile...")
@@ -52,7 +64,7 @@ def main():
 
     dev = qml.device("lightning.qubit", wires=qubits)
 
-    hf = qml.qchem.hf_state(electrons, qubits)
+    
     print("Hartree-fock basis state:", hf)
     
 
