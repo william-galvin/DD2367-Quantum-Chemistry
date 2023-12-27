@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 
 from pennylane import numpy as np
 import numpy
@@ -107,6 +108,9 @@ def main():
     plt.title("Calculated Energy vs Optimization step")
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
+
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir)
 
     plt.savefig(f"{args.output_dir}/plot.png")
     print(f"\nPlot saved at {args.output_dir}/plot.png")
