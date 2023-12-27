@@ -3,6 +3,7 @@
 import argparse
 
 from pennylane import numpy as np
+import numpy
 import pennylane as qml
 
 
@@ -27,6 +28,11 @@ def main():
         type=float,
         default=1e-6,
         help="Convergence threshdold"
+    )
+
+    parser.add_argument(
+        "--output-dir",
+        default="."
     )
     
     args = parser.parse_args()
@@ -70,13 +76,13 @@ def main():
 
 
     energy = [cost_fn(theta)]
-    angle = [theta]
+    angle = numpy.zeros((args.max_iter, theta.shape[0]))
 
     for n in range(args.max_iter):
+        angle[n] = theta
         theta, prev_energy = opt.step_and_cost(cost_fn, theta)
 
         energy.append(cost_fn(theta))
-        angle.append(theta)
 
         conv = np.abs(energy[-1] - prev_energy)
 
@@ -102,8 +108,11 @@ def main():
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
 
-    plt.savefig("plot.png")
-    print("\nPlot saved at plot.png")
+    plt.savefig(f"{args.output_dir}/plot.png")
+    print(f"\nPlot saved at {args.output_dir}/plot.png")
+
+    numpy.save(f"{args.output_dir}/thetas.npy", angle)
+    print(f"Thetas saved at {args.output_dir}/thetas.npy")
 
 
 if __name__ == "__main__":
